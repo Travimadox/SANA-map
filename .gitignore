@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Runtime outputs
+results/
+*.svo
+*.pt
+*.npy
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store

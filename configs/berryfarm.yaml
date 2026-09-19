@@ -1,0 +1,45 @@
+# Greendale Berry Farm, Klapmuts, South Africa (Sec. IV, Experimental Setup).
+#
+# Reproduces the settings reported for the outdoor field deployment: a
+# 60x60 m map with its origin shifted toward the row entrance, the
+# proxy prompts that recovered a usable crop signal where direct crop
+# prompts failed (Sec. IV-A), and the same circular projection mask and
+# height band as the indoor run.
+#
+# Usage:
+#   sana-map --config configs/berryfarm.yaml --dump_dir results/berryfarm_run_01
+
+parameters:
+  classes:
+    - potted plant
+    - flower pot
+
+  yolo_or_owl: 2          # YOLOE
+  conf: 0.1
+  iou: 0.5
+  use_reduced_masks: 1
+  mask_reduction_factor: 0.4
+  mask_shape: circular
+
+  frame_width: 1280
+  frame_height: 720
+  env_frame_width: 1280
+  env_frame_height: 720
+  hfov: 100.39
+  camera_height: 0.38
+  min_depth: 0.5
+  max_depth: 5.0
+
+  map_size_cm: 6000       # 60 x 60 m
+  map_resolution: 5
+  global_downscaling: 1
+  vision_range: 100
+  farm_or_indoors: 1      # map origin at the row entrance
+  update_frequency: 25
+
+  min_z: 40.0
+  max_z: 60.0
+  max_height: 250.0
+  cat_pred_threshold: 5.0
+  map_pred_threshold: 1.0
+  exp_pred_threshold: 1.0

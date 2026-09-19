@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sana-map"
+version = "0.1.0"
+description = "Real-time open-vocabulary semantic mapping for agricultural robots"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [
+    { name = "Travimadox Webb" },
+    { name = "Paul Amayo" },
+    { name = "Talifhani Nemaangani" },
+]
+keywords = [
+    "semantic mapping",
+    "open-vocabulary perception",
+    "agricultural robotics",
+    "bird's-eye-view mapping",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "torch>=2.0",
+    "torchvision",
+    "numpy",
+    "opencv-python",
+    "pillow",
+    "pyyaml",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "ultralytics",   # YOLO-World, YOLOE, SAM, FastSAM
+    "transformers",  # OWLv2, Grounding DINO
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+# The Stereolabs ZED SDK's Python API (pyzed) is not distributed on PyPI.
+# Install it separately from the ZED SDK's get_python_api.py installer
+# after installing the SDK itself — see README.md.
+
+[project.scripts]
+sana-map = "sana_map.run:main"
+
+[tool.setuptools.packages.find]
+include = ["sana_map*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
