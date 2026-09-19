@@ -5,6 +5,13 @@
 </p>
 
 <p align="center">
+  <img src="docs/media/indoor_mapping_process.gif" width="49%" alt="Live SANA-map run on the indoor test bed: RGB, detections, depth, and the growing semantic map">
+  <img src="docs/media/farm_mapping_process.gif" width="49%" alt="Live SANA-map run at Greendale Berry Farm: RGB, detections, depth, and the growing semantic map">
+</p>
+
+<!-- TODO: point at the published paper once it has a DOI/URL -->
+<p align="center">
+  <a href="#"><img alt="Paper" src="https://img.shields.io/badge/paper-SATNAC%202026-b31b1b"></a>
   <a href="#"><img alt="Python" src="https://img.shields.io/badge/python-3.9%2B-blue"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green"></a>
 </p>
@@ -95,6 +102,8 @@ sana_map/
 configs/
   indoor.yaml                  Sec. IV settings for the indoor test bed
   berryfarm.yaml                Sec. IV settings for the outdoor field deployment
+docs/
+  media/                       Live-run GIFs used above (from real onboard sessions)
 ```
 
 ## Supported detectors
