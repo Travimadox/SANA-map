@@ -2,20 +2,20 @@
 # PROJECT: SANA-map
 # FILE: run.py
 # DESCRIPTION: The threaded ZED mapping pipeline described in Sec. III of
-#              the paper — ZED capture, open-vocabulary detection, and
+#              the paper, ZED capture, open-vocabulary detection, and
 #              semantic BEV mapping each run on their own thread so their
 #              costs overlap rather than summing (see OPT notes below).
 # HISTORY: originally main_with_zed_optim_threaded_v2.py in the Agrinav
 #          research repository.
 # CHANGES vs the non-threaded version:
-#   [OPT-1]  Detector moved to its own pipeline thread — detection now
+#   [OPT-1]  Detector moved to its own pipeline thread, detection now
 #            overlaps ZED I/O AND semantic mapping (hides 40–60 ms/frame)
 #   [OPT-1b] Adaptive frame-skip: detector result reused when robot is
 #            nearly stationary (motion-gated via pose delta threshold)
 #   [OPT-2]  Pinned-memory obs tensor + non_blocking H→D transfer
 #            (PCIe DMA overlaps CPU work; eliminates blocking copy)
 #   [OPT-3]  All map channels sent to viz thread as a single CPU tensor
-#            moved with .cpu() before .clone() — GPU freed faster
+#            moved with .cpu() before .clone(), GPU freed faster
 #   [OPT-4]  All pose tensors pre-allocated; in-place fill replaces
 #            repeated .clone() / zeros_like() each frame
 #   [OPT-5]  Pre-allocated contiguous RGBD state buffer; avoids
@@ -24,7 +24,7 @@
 #   [OPT-7]  pose_history uses collections.deque; snapshot via np.array
 #            instead of list copy
 #   [OPT-8]  sem_map_module wrapped with torch.compile(reduce-overhead)
-#            when PyTorch >= 2.0 — fuses CUDA kernels, cuts 15–30 %
+#            when PyTorch >= 2.0, fuses CUDA kernels, cuts 15–30 %
 #   [OPT-9]  update_agent_location_channels uses single .zero_() kernel
 #            instead of fill_(0.) to reduce CUDA round-trips
 # ═══════════════════════════════════════════════════════════════════════
@@ -64,7 +64,7 @@ from .visualisation import plot_map
 # ═══════════════════════════════════════════════════════════════════════
 
 _SENTINEL = None          # Poison pill for all queues
-_MOTION_THRESH = 0.01     # metres — below this reuse last semantic pred
+_MOTION_THRESH = 0.01     # metres, below this reuse last semantic pred
                           # (OPT-1b) tune per deployment speed
 
 
@@ -214,7 +214,7 @@ class DetectorThread:
             idx, rgb, skip = item
 
             if skip and self._last_pred is not None:
-                # [OPT-1b] reuse previous prediction — ~0 ms
+                # [OPT-1b] reuse previous prediction, ~0 ms
                 self._out_q.put((idx, self._last_pred))
             else:
                 sem_pred, _, _, _ = self._detector.get_predictions(
@@ -231,7 +231,7 @@ class DetectorThread:
         try:
             self._in_q.put_nowait((idx, rgb, skip))
         except Exception:
-            # Queue full — put blocking so we don't lose frames
+            # Queue full, put blocking so we don't lose frames
             self._in_q.put((idx, rgb, skip))
 
     def get_result(self, timeout=30.0):
@@ -304,7 +304,7 @@ class VisualizationThread:
 
     [OPT-6] colorize_depth is now executed here, not on the main thread.
     The main thread simply passes the raw depth array (a lightweight
-    numpy reference) — zero colorization cost on the critical path.
+    numpy reference), zero colorization cost on the critical path.
     """
 
     def __init__(self, maxsize=4):
@@ -360,7 +360,7 @@ class VisualizationThread:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Depth colourisation — kept for final synchronous save only
+# Depth colourisation, kept for final synchronous save only
 # ═══════════════════════════════════════════════════════════════════════
 
 def colorize_depth(depth_raw, max_depth=5.0):
@@ -386,13 +386,13 @@ def _preprocess_obs(obs, sem_seg_pred, target_size, ds,
     """Build a channel-first state tensor from a raw RGBD observation.
 
     [OPT-1]  sem_seg_pred is now passed in (computed by DetectorThread).
-    [OPT-5]  Uses pre-allocated state_buf when provided — avoids the
+    [OPT-5]  Uses pre-allocated state_buf when provided, avoids the
              np.concatenate + transpose allocation on every frame.
 
     Parameters
     ----------
-    obs          : np.ndarray  (C, H, W)  — RGBD, channels-first
-    sem_seg_pred : np.ndarray  (H, W, N)  — from detector thread
+    obs          : np.ndarray  (C, H, W) , RGBD, channels-first
+    sem_seg_pred : np.ndarray  (H, W, N) , from detector thread
     target_size  : tuple (H, W) for cv2.resize, or None when ds == 1
     ds           : int  downsample factor
     state_buf    : np.ndarray (C', H', W') pre-allocated output buffer
@@ -401,7 +401,7 @@ def _preprocess_obs(obs, sem_seg_pred, target_size, ds,
 
     Returns
     -------
-    state : np.ndarray  (C', H', W')  — may be a view of state_buf
+    state : np.ndarray  (C', H', W') , may be a view of state_buf
     """
     obs   = obs.transpose(1, 2, 0)          # → (H, W, C)
     rgb   = obs[:, :, :3]
@@ -425,7 +425,7 @@ def _preprocess_obs(obs, sem_seg_pred, target_size, ds,
     depth = np.expand_dims(depth, axis=2)
 
     if state_buf is not None:
-        # [OPT-5] write directly into pre-allocated buffer — no alloc
+        # [OPT-5] write directly into pre-allocated buffer, no alloc
         C_rgb = 3
         C_dep = 1
         C_sem = sem_seg_pred.shape[2]
@@ -660,7 +660,7 @@ def main():
     sem_map_module.eval()
 
     # [OPT-8] torch.compile reduces Python dispatch overhead and can
-    # fuse CUDA kernels — 15–30 % faster on repeated fixed-shape calls.
+    # fuse CUDA kernels, 15–30 % faster on repeated fixed-shape calls.
     if hasattr(torch, 'compile'):
         print("Compiling sem_map_module with torch.compile (reduce-overhead)…")
         sem_map_module = torch.compile(
@@ -761,7 +761,7 @@ def main():
     print("Detector thread started")
 
     # ═════════════════════════════════════════════════════════════════
-    # First frame  (synchronous — bootstraps detector & pose)
+    # First frame  (synchronous, bootstraps detector & pose)
     # ═════════════════════════════════════════════════════════════════
     profiler.start("full_frame")
 
@@ -775,7 +775,7 @@ def main():
 
     with profiler.stage("pose_extraction"):
         x, y, yaw = extract_2d_pose(zed, cam_w_pose)
-        # [OPT-4] in-place fill — no clone()
+        # [OPT-4] in-place fill, no clone()
         sensor_pose[0, 0] = x
         sensor_pose[0, 1] = y
         sensor_pose[0, 2] = yaw
@@ -794,7 +794,7 @@ def main():
         print(f"Initial zed pose:   x={sensor_pose[0,0]:.3f}  "
               f"y={sensor_pose[0,1]:.3f}  yaw={sensor_pose[0,2]:.3f}")
 
-    # [OPT-4] pre-allocated zero tensors — no zeros_like allocation
+    # [OPT-4] pre-allocated zero tensors, no zeros_like allocation
     rel_pose.zero_()
 
     # ── Submit frame-0 to detector thread (async) ────────────────────
@@ -993,7 +993,7 @@ def main():
             if use_lidar_poses:
                 lidar_pose_history.append(lidar_full_pose[0].cpu().numpy().copy())
 
-            # [OPT-4] in-place prev_pose update — no clone()
+            # [OPT-4] in-place prev_pose update, no clone()
             prev_pose.copy_(curr_pose)
 
             # ── [I] Visualisation (offloaded) ─────────────────────────
@@ -1003,7 +1003,7 @@ def main():
                     # is freed immediately; all channels preserved for plot.
                     full_map_cpu = full_map.cpu().clone()
 
-                    # [OPT-6] Pass raw depth — viz thread colorizes it
+                    # [OPT-6] Pass raw depth, viz thread colorizes it
                     viz_thread.submit(
                         full_map          = full_map_cpu,
                         rgb_image         = rgb_image.copy(),

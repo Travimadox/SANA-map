@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════════
 # PROJECT: SANA-map
 # FILE: mapping.py
-# DESCRIPTION: Semantic_Mapping — projects prompt-conditioned instance masks
+# DESCRIPTION: Semantic_Mapping, projects prompt-conditioned instance masks
 #              and metric depth into an egocentric multichannel BEV
 #              observation, then fuses it into the persistent global map.
 #              This is the mapping formulation described in the paper's

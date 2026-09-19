@@ -13,14 +13,14 @@ SANA-map builds a persistent, multichannel bird's-eye-view (BEV) semantic map
 from RGB-D observations, robot pose, and user-specified natural-language
 prompts. Open-vocabulary instance masks are back-projected into a semantic
 point cloud, voxelised, and fused into a global map whose semantic channels
-change at deployment time — no detector retraining required when the crop,
+change at deployment time, no detector retraining required when the crop,
 cultivar, or task changes.
 
 This repository is the mapping-only reference implementation accompanying
 the paper *"From Words to Rows: Prompt-Conditioned Real-Time Semantic
 Mapping for Agricultural Robots"* (SATNAC 2026). It reproduces the pipeline
-in Sec. III of the paper — RGB-D capture, prompt-conditioned detection,
-back-projection, and geocentric fusion (Fig. 1) — on a Stereolabs ZED 2i
+in Sec. III of the paper, RGB-D capture, prompt-conditioned detection,
+back-projection, and geocentric fusion (Fig. 1), on a Stereolabs ZED 2i
 camera. It does not include the navigation-policy or evaluation code used
 to produce the paper's figures; those live in the group's internal
 research repository.
@@ -28,7 +28,7 @@ research repository.
 ## Quick start
 
 Requires a CUDA GPU and the [Stereolabs ZED SDK](https://www.stereolabs.com/developers/release)
-(the ZED SDK ships its own `pyzed` Python API, which is not on PyPI — install
+(the ZED SDK ships its own `pyzed` Python API, which is not on PyPI, install
 it from the SDK's `get_python_api.py` after installing the SDK itself).
 
 ```bash
@@ -53,7 +53,7 @@ sana-map --config configs/berryfarm.yaml --dump_dir results/field_run_01
 
 `--config` loads a YAML file of defaults; any flag still passed on the
 command line overrides it. Run `sana-map --help` for the full flag list, or
-see [`sana_map/config.py`](sana_map/config.py) — every flag there is
+see [`sana_map/config.py`](sana_map/config.py), every flag there is
 documented at the point where it's added to the parser.
 
 ### Prompt-conditioned categories
@@ -61,19 +61,19 @@ documented at the point where it's added to the parser.
 The mapped semantic categories are set by `--classes`, a comma-separated
 list of natural-language prompts (e.g. `"potted plant,flower pot"`). Each
 category becomes one channel in the output map. The paper's Sec. IV-A
-finding — that a visually related *proxy* prompt (`"potted plant"`) can
+finding, that a visually related *proxy* prompt (`"potted plant"`) can
 recover a usable signal where a direct crop prompt (`"blueberry bush"`)
-fails — applies directly here: try a proxy prompt describing a visually
+fails, applies directly here: try a proxy prompt describing a visually
 distinctive part of the scene if the direct category name produces no
 detections.
 
 ### Output
 
 Each run writes to `--dump_dir`:
-- `SLAM_MAP.pt` — the final multichannel BEV map (obstacle, explored,
+- `SLAM_MAP.pt`, the final multichannel BEV map (obstacle, explored,
   current/past robot location, and one channel per prompt category).
-- `pose_history.npy` — the accumulated trajectory.
-- `profiling.csv` — a per-stage timing breakdown (Sec. IV-B in the paper).
+- `pose_history.npy`, the accumulated trajectory.
+- `profiling.csv`, a per-stage timing breakdown (Sec. IV-B in the paper).
 - Periodic visualisation frames, saved every `--saving_frequency` frames.
 
 ## Repository layout

@@ -155,7 +155,7 @@ class PipelineProfiler:
             fps = 1000.0 / avg if avg > 0 else math.inf
             pct = (avg / full_avg_ms * 100.0) if full_avg_ms > 0 else 0.0
 
-            fps_str = f"{fps:.1f}" if fps < 1e6 else "—"
+            fps_str = f"{fps:.1f}" if fps < 1e6 else "-"
             pct_str = f"{pct:.1f}%" if name != "full_frame" else "100.0%"
             if name == "visualization":
                 pct_str = "(periodic)"

@@ -46,7 +46,7 @@ dev = ["pytest", "ruff"]
 
 # The Stereolabs ZED SDK's Python API (pyzed) is not distributed on PyPI.
 # Install it separately from the ZED SDK's get_python_api.py installer
-# after installing the SDK itself — see README.md.
+# after installing the SDK itself, see README.md.
 
 [project.scripts]
 sana-map = "sana_map.run:main"
