@@ -123,16 +123,18 @@ def get_args():
                         help="Divides --map_size_cm to get the local map "
                              "size the network operates over per frame.")
     parser.add_argument("--vision_range", type=int, default=100,
-                        help="Egocentric voxel-grid extent, cells "
-                             "(100 cells x 5 cm = 5x5 m).")
+                        help="Egocentric voxel-grid extent, cells. 50 cells "
+                             "x 5 cm = 2.5x2.5 m was used indoors; 100 cells "
+                             "= 5x5 m outdoors (Sec. III-B).")
     parser.add_argument("--du_scale", type=int, default=1,
                         help="Depth-image downscaling factor before "
                              "back-projection.")
     parser.add_argument("--num_processes", type=int, default=1,
                         help="Batch size; 1 for a single live/SVO stream.")
-    parser.add_argument("--num_sem_categories", type=int, default=1,
-                        help="Number of semantic map channels. Set "
-                             "automatically from --classes if left default.")
+    parser.add_argument("--num_sem_categories", type=int, default=None,
+                        help="Number of semantic map channels. Defaults to "
+                             "len(--classes) + 1 (one extra channel for "
+                             "unmatched/background instances) if not set.")
     parser.add_argument("--farm_or_indoors", type=int, default=0,
                         help="0: indoor map origin at map centre. "
                              "1: outdoor map origin at the map edge along x, "
@@ -142,7 +144,7 @@ def get_args():
                              "Default depends on --farm_or_indoors.")
     parser.add_argument("--map_origin_y_m", type=float, default=None,
                         help="Override the map's y origin, metres.")
-    parser.add_argument("--update_frequency", type=int, default=25,
+    parser.add_argument("--update_frequency", type=int, default=30,
                         help="Fuse the egocentric observation into the "
                              "persistent global map every N frames, and "
                              "export a map snapshot at the same cadence "
@@ -153,8 +155,9 @@ def get_args():
                         help="Top of the voxel grid above ground, cm.")
     parser.add_argument("--min_z", type=float, default=40.0,
                         help="Bottom of the semantic-evidence height band, cm. "
-                             "40-60 cm was used for the reported crop-"
-                             "geometry experiments.")
+                             "20-80 cm was used indoors and 40-60 cm "
+                             "outdoors for the reported crop-geometry "
+                             "experiments (Sec. III-B).")
     parser.add_argument("--max_z", type=float, default=60.0,
                         help="Top of the semantic-evidence height band, cm.")
     parser.add_argument("--cat_pred_threshold", type=float, default=5.0,
@@ -182,8 +185,10 @@ def get_args():
     args = parser.parse_args()
 
     args.classes = [c.strip() for c in args.classes.split(",")] if args.classes else []
-    if args.num_sem_categories == 1 and len(args.classes) > 1:
-        args.num_sem_categories = len(args.classes)
+    if args.num_sem_categories is None:
+        # One extra channel beyond the prompt categories for unmatched
+        # instances, matching every deployed run configuration.
+        args.num_sem_categories = len(args.classes) + 1
 
     args.device = "cuda" if torch.cuda.is_available() else "cpu"
     args.fast_sam = bool(args.fast_sam)

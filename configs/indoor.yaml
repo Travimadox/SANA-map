@@ -2,8 +2,9 @@
 #
 # Reproduces the settings reported for the indoor evaluation: a 25x25 m
 # map centred on the robot, a circular projection mask at retention
-# factor alpha=0.4, and the 40-60 cm semantic height band used for the
-# reported crop-geometry experiments.
+# factor alpha=0.4, and the 20-80 cm semantic height band used for the
+# reported indoor crop-geometry experiments. Verified against the saved
+# per-run configs behind the paper's 15-run indoor evaluation.
 #
 # Usage:
 #   sana-map --config configs/indoor.yaml --dump_dir results/indoor_run_01
@@ -13,7 +14,7 @@ parameters:
     - potted plant
 
   yolo_or_owl: 2          # YOLOE
-  conf: 0.1
+  conf: 0.2
   iou: 0.5
   use_reduced_masks: 1
   mask_reduction_factor: 0.4
@@ -30,14 +31,14 @@ parameters:
 
   map_size_cm: 2500       # 25 x 25 m
   map_resolution: 5
-  global_downscaling: 1
-  vision_range: 100
+  global_downscaling: 2
+  vision_range: 50        # 2.5 x 2.5 m egocentric window
   farm_or_indoors: 0      # map origin at the map centre
-  update_frequency: 25
+  update_frequency: 30
 
-  min_z: 40.0
-  max_z: 60.0
+  min_z: 20.0
+  max_z: 80.0
   max_height: 250.0
-  cat_pred_threshold: 5.0
-  map_pred_threshold: 1.0
-  exp_pred_threshold: 1.0
+  cat_pred_threshold: 20.0
+  map_pred_threshold: 10.0
+  exp_pred_threshold: 10.0
