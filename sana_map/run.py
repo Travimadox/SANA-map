@@ -129,6 +129,33 @@ def init_zed_camera(args):
 
     print("Initialised Camera")
 
+    # The pipeline pre-allocates every downstream buffer from
+    # --frame_width/--frame_height, and the depth/semantic downscale path
+    # (_preprocess_obs) only supports a clean integer ratio between the
+    # source's native resolution and that target, via array striding. A
+    # live camera always delivers what it was configured for, but a
+    # replayed .svo carries its own recorded resolution, which can differ
+    # from the config (e.g. an older recording at the camera's factory
+    # default). Detect that mismatch here and adopt the source's native
+    # resolution outright, rather than fail deep in the frame loop with a
+    # numpy broadcast error that gives no hint why.
+    source_res = zed.get_camera_information().camera_configuration.resolution
+    native_w, native_h = source_res.width, source_res.height
+    if (native_w, native_h) != (args.frame_width, args.frame_height):
+        source_desc = f"SVO file {args.svo!r}" if args.svo else "the live camera"
+        print(
+            f"WARNING: {source_desc} delivers {native_w}x{native_h}, not the "
+            f"configured --frame_width/--frame_height ({args.frame_width}x"
+            f"{args.frame_height}). Re-run with --frame_width {native_w} "
+            f"--frame_height {native_h} --env_frame_width {native_w} "
+            f"--env_frame_height {native_h} to pin this explicitly; for now "
+            f"the pipeline adopts the source's native resolution."
+        )
+        args.frame_width = native_w
+        args.frame_height = native_h
+        args.env_frame_width = native_w
+        args.env_frame_height = native_h
+
     tracking_params = sl.PositionalTrackingParameters()
     tracking_params.enable_imu_fusion = True
     tracking_params.mode              = sl.POSITIONAL_TRACKING_MODE.GEN_2
