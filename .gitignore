@@ -8,10 +8,14 @@ dist/
 venv/
 
 # Runtime outputs
-results/
+[Rr]esults/
 *.svo
+*.svo2
 *.pt
 *.npy
+*.csv
+*.ts
+models/
 
 # Editor / OS
 .vscode/
